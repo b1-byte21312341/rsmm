@@ -1,9 +1,171 @@
---бл хуйня какая то но вроде бы норм кнопку "close" не жмите сурсик
-
-
 local player = game.Players.LocalPlayer
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
+
+local COLORS = {
+    Background = Color3.fromRGB(25, 25, 30),
+    Secondary = Color3.fromRGB(35, 35, 40),
+    Tertiary = Color3.fromRGB(45, 45, 50),
+    Primary = Color3.fromRGB(0, 120, 215),
+    PrimaryHover = Color3.fromRGB(0, 140, 255),
+    Success = Color3.fromRGB(52, 199, 89),
+    Error = Color3.fromRGB(255, 59, 48),
+    Text = Color3.fromRGB(255, 255, 255),
+    TextSecondary = Color3.fromRGB(180, 180, 180)
+}
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "ItemSpawner"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 320, 0, 410)
+mainFrame.Position = UDim2.new(0.5, -160, 0.5, -205)
+mainFrame.BackgroundColor3 = COLORS.Background
+mainFrame.BackgroundTransparency = 1
+mainFrame.Parent = screenGui
+
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 12)
+
+local stroke = Instance.new("UIStroke", mainFrame)
+stroke.Color = COLORS.Primary
+stroke.Thickness = 2
+stroke.Transparency = 1
+
+local topBar = Instance.new("Frame")
+topBar.Size = UDim2.new(1, 0, 0, 40)
+topBar.BackgroundColor3 = COLORS.Secondary
+topBar.BackgroundTransparency = 1
+topBar.Parent = mainFrame
+
+Instance.new("UICorner", topBar).CornerRadius = UDim.new(0, 12)
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -20, 1, 0)
+title.Position = UDim2.new(0, 10, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "ITEM SPAWNER"
+title.TextColor3 = COLORS.Text
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
+title.TextTransparency = 1
+title.Parent = topBar
+
+local searchBox = Instance.new("TextBox")
+searchBox.Size = UDim2.new(0.9, 0, 0, 35)
+searchBox.Position = UDim2.new(0.05, 0, 0, 50)
+searchBox.BackgroundColor3 = COLORS.Tertiary
+searchBox.TextColor3 = COLORS.Text
+searchBox.Font = Enum.Font.Gotham
+searchBox.TextSize = 14
+searchBox.PlaceholderText = "Search..."
+searchBox.PlaceholderColor3 = COLORS.TextSecondary
+searchBox.Text = ""
+searchBox.TextTransparency = 1
+searchBox.Parent = mainFrame
+
+Instance.new("UICorner", searchBox).CornerRadius = UDim.new(0, 8)
+
+local scrollFrame = Instance.new("ScrollingFrame")
+scrollFrame.Size = UDim2.new(0.9, 0, 0, 230)
+scrollFrame.Position = UDim2.new(0.05, 0, 0, 95)
+scrollFrame.BackgroundColor3 = COLORS.Tertiary
+scrollFrame.BackgroundTransparency = 1
+scrollFrame.BorderSizePixel = 0
+scrollFrame.ScrollBarThickness = 6
+scrollFrame.ScrollBarImageColor3 = COLORS.Primary
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+scrollFrame.Parent = mainFrame
+
+Instance.new("UICorner", scrollFrame).CornerRadius = UDim.new(0, 8)
+
+local listLayout = Instance.new("UIListLayout", scrollFrame)
+listLayout.Padding = UDim.new(0, 5)
+listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+local listPadding = Instance.new("UIPadding", scrollFrame)
+listPadding.PaddingTop = UDim.new(0, 5)
+listPadding.PaddingBottom = UDim.new(0, 5)
+listPadding.PaddingLeft = UDim.new(0, 5)
+listPadding.PaddingRight = UDim.new(0, 5)
+
+local spawnButton = Instance.new("TextButton")
+spawnButton.Size = UDim2.new(0.9, 0, 0, 40)
+spawnButton.Position = UDim2.new(0.05, 0, 0, 335)
+spawnButton.BackgroundColor3 = COLORS.Primary
+spawnButton.BackgroundTransparency = 1
+spawnButton.Text = "SPAWN"
+spawnButton.TextColor3 = COLORS.Text
+spawnButton.Font = Enum.Font.GothamBold
+spawnButton.TextSize = 14
+spawnButton.TextTransparency = 1
+spawnButton.Parent = mainFrame
+
+Instance.new("UICorner", spawnButton).CornerRadius = UDim.new(0, 8)
+
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0.9, 0, 0, 35)
+closeButton.Position = UDim2.new(0.05, 0, 0, 385)
+closeButton.BackgroundColor3 = COLORS.Error
+closeButton.BackgroundTransparency = 1
+closeButton.Text = "CLOSE"
+closeButton.TextColor3 = COLORS.Text
+closeButton.Font = Enum.Font.GothamBold
+closeButton.TextSize = 14
+closeButton.TextTransparency = 1
+closeButton.Parent = mainFrame
+
+Instance.new("UICorner", closeButton).CornerRadius = UDim.new(0, 8)
+
+local progressFrame = Instance.new("Frame")
+progressFrame.Size = UDim2.new(0.9, 0, 0, 80)
+progressFrame.Position = UDim2.new(0.05, 0, 0, 335)
+progressFrame.BackgroundColor3 = COLORS.Secondary
+progressFrame.BackgroundTransparency = 1
+progressFrame.Visible = false
+progressFrame.Parent = mainFrame
+
+Instance.new("UICorner", progressFrame).CornerRadius = UDim.new(0, 8)
+
+local progressLabel = Instance.new("TextLabel")
+progressLabel.Size = UDim2.new(1, -20, 0, 20)
+progressLabel.Position = UDim2.new(0, 10, 0, 10)
+progressLabel.BackgroundTransparency = 1
+progressLabel.Text = "Spawning..."
+progressLabel.TextColor3 = COLORS.Text
+progressLabel.Font = Enum.Font.Gotham
+progressLabel.TextSize = 12
+progressLabel.TextTransparency = 1
+progressLabel.Parent = progressFrame
+
+local progressBarBG = Instance.new("Frame")
+progressBarBG.Size = UDim2.new(1, -20, 0, 10)
+progressBarBG.Position = UDim2.new(0, 10, 0, 40)
+progressBarBG.BackgroundColor3 = COLORS.Tertiary
+progressBarBG.BackgroundTransparency = 1
+progressBarBG.Parent = progressFrame
+
+Instance.new("UICorner", progressBarBG).CornerRadius = UDim.new(1, 0)
+
+local progressBarFill = Instance.new("Frame")
+progressBarFill.Size = UDim2.new(0, 0, 1, 0)
+progressBarFill.BackgroundColor3 = COLORS.Primary
+progressBarFill.BackgroundTransparency = 1
+progressBarFill.Parent = progressBarBG
+
+Instance.new("UICorner", progressBarFill).CornerRadius = UDim.new(1, 0)
+
+local progressPercent = Instance.new("TextLabel")
+progressPercent.Size = UDim2.new(1, -20, 0, 20)
+progressPercent.Position = UDim2.new(0, 10, 0, 55)
+progressPercent.BackgroundTransparency = 1
+progressPercent.Text = "0%"
+progressPercent.TextColor3 = COLORS.TextSecondary
+progressPercent.Font = Enum.Font.Gotham
+progressPercent.TextSize = 12
+progressPercent.TextTransparency = 1
+progressPercent.Parent = progressFrame
 
 local items = {
     {original = "Harvester", custom = "Harvester"},
@@ -44,366 +206,137 @@ local items = {
     {original = "Sorry", custom = "Corrupt"}
 }
 
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "ChristmasItemSpawnerGUI"
-screenGui.ResetOnSpawn = false
-screenGui.Parent = player:WaitForChild("PlayerGui")
-screenGui.IgnoreGuiInset = true
-screenGui.DisplayOrder = 1000
-
-local snowContainer = Instance.new("Frame")
-snowContainer.Size = UDim2.new(1, 0, 1, 0)
-snowContainer.BackgroundTransparency = 1
-snowContainer.Parent = screenGui
-
-for i = 1, 50 do
-    local snowflake = Instance.new("Frame")
-    snowflake.Size = UDim2.new(0, math.random(2, 6), 0, math.random(2, 6))
-    snowflake.Position = UDim2.new(math.random(), 0, -0.1, 0)
-    snowflake.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    snowflake.BorderSizePixel = 0
-    snowflake.BackgroundTransparency = 0.7
-    snowflake.Parent = snowContainer
+local itemButtons = {}
+for _, item in ipairs(items) do
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, 0, 0, 30)
+    button.BackgroundColor3 = COLORS.Secondary
+    button.BackgroundTransparency = 1
+    button.Text = item.custom
+    button.TextColor3 = COLORS.Text
+    button.Font = Enum.Font.Gotham
+    button.TextSize = 12
+    button.TextTransparency = 1
+    button.AutoButtonColor = false
+    button.Parent = scrollFrame
     
-    local corner = Instance.new("UICorner", snowflake)
-    corner.CornerRadius = UDim.new(1, 0)
+    Instance.new("UICorner", button).CornerRadius = UDim.new(0, 4)
     
-    spawn(function()
-        while snowflake.Parent do
-            local speed = math.random(5, 15)
-            local sway = math.random(-20, 20)
-            local duration = math.random(3, 8)
-            
-            snowflake:TweenPosition(
-                UDim2.new(
-                    snowflake.Position.X.Scale + (sway/1000),
-                    0,
-                    1.1,
-                    0
-                ),
-                "Linear",
-                "Linear",
-                duration,
-                true
-            )
-            
-            wait(duration)
-            if snowflake.Parent then
-                snowflake.Position = UDim2.new(math.random(), 0, -0.1, 0)
-            end
+    button.MouseEnter:Connect(function()
+        if button.BackgroundTransparency == 0 then
+            TweenService:Create(button, TweenInfo.new(0.2), {
+                BackgroundColor3 = COLORS.Primary
+            }):Play()
         end
     end)
+    
+    button.MouseLeave:Connect(function()
+        if button.BackgroundTransparency == 0 then
+            TweenService:Create(button, TweenInfo.new(0.2), {
+                BackgroundColor3 = COLORS.Secondary
+            }):Play()
+        end
+    end)
+    
+    button.MouseButton1Click:Connect(function()
+        searchBox.Text = item.custom
+    end)
+    
+    table.insert(itemButtons, {button = button, item = item})
 end
 
-local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 240, 0, 180)
-mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-mainFrame.BackgroundColor3 = Color3.fromRGB(10, 30, 50)
-mainFrame.BackgroundTransparency = 0
-mainFrame.ZIndex = 10
-mainFrame.Parent = screenGui
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, #items * 35)
 
-local gradient = Instance.new("UIGradient")
-gradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(10, 30, 60)),
-    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(20, 50, 80)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(10, 30, 60))
-})
-gradient.Rotation = 90
-gradient.Parent = mainFrame
-
-Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 12)
-
-local frameStroke = Instance.new("UIStroke", mainFrame)
-frameStroke.Color = Color3.fromRGB(255, 215, 0)
-frameStroke.Thickness = 2
-frameStroke.Transparency = 0.3
-
-local titleLabel = Instance.new("TextLabel")
-titleLabel.Text = "🎁 NEW YEAR SPAWNER 🎁"
-titleLabel.Size = UDim2.new(1, 0, 0, 30)
-titleLabel.BackgroundTransparency = 1
-titleLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
-titleLabel.Font = Enum.Font.GothamBlack
-titleLabel.TextSize = 14
-titleLabel.TextTransparency = 0
-titleLabel.ZIndex = 11
-titleLabel.Parent = mainFrame
-
-local topDecoration = Instance.new("Frame")
-topDecoration.Size = UDim2.new(1, 0, 0, 3)
-topDecoration.Position = UDim2.new(0, 0, 0, 30)
-topDecoration.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
-topDecoration.BackgroundTransparency = 0
-topDecoration.ZIndex = 11
-topDecoration.Parent = mainFrame
-
-local inputBox = Instance.new("TextBox")
-inputBox.PlaceholderText = "🎄 Enter item name..."
-inputBox.Size = UDim2.new(0.9, 0, 0, 28)
-inputBox.Position = UDim2.new(0.05, 0, 0, 40)
-inputBox.BackgroundColor3 = Color3.fromRGB(20, 40, 70)
-inputBox.TextColor3 = Color3.fromRGB(200, 230, 255)
-inputBox.Font = Enum.Font.Gotham
-inputBox.TextSize = 12
-inputBox.TextTransparency = 0
-inputBox.ZIndex = 11
-inputBox.Text = ""
-inputBox.Parent = mainFrame
-
-local inputCorner = Instance.new("UICorner", inputBox)
-inputCorner.CornerRadius = UDim.new(0, 8)
-
-local inputStroke = Instance.new("UIStroke", inputBox)
-inputStroke.Color = Color3.fromRGB(0, 200, 255)
-inputStroke.Thickness = 1.5
-
-local spawnButton = Instance.new("TextButton")
-spawnButton.Text = "✨ SPAWN ✨"
-spawnButton.Size = UDim2.new(0.45, 0, 0, 28)
-spawnButton.Position = UDim2.new(0.5, 0, 0, 73)
-spawnButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
-spawnButton.TextColor3 = Color3.new(1, 1, 1)
-spawnButton.Font = Enum.Font.GothamBlack
-spawnButton.TextSize = 12
-spawnButton.TextTransparency = 0
-spawnButton.ZIndex = 11
-spawnButton.Parent = mainFrame
-
-local spawnCorner = Instance.new("UICorner", spawnButton)
-spawnCorner.CornerRadius = UDim.new(0, 8)
-
-local spawnStroke = Instance.new("UIStroke", spawnButton)
-spawnStroke.Color = Color3.fromRGB(255, 215, 0)
-spawnStroke.Thickness = 1.5
-
-local openButton = Instance.new("TextButton")
-openButton.Text = "🎄 OPEN 🎄"
-openButton.Size = UDim2.new(0.35, 0, 0, 22)
-openButton.Position = UDim2.new(0.05, 0, 0, 73)
-openButton.BackgroundColor3 = Color3.fromRGB(0, 150, 100)
-openButton.TextColor3 = Color3.new(1, 1, 1)
-openButton.Font = Enum.Font.GothamBlack
-openButton.TextSize = 10
-openButton.TextTransparency = 0
-openButton.ZIndex = 11
-openButton.Parent = mainFrame
-Instance.new("UICorner", openButton).CornerRadius = UDim.new(0, 8)
-local openStroke = Instance.new("UIStroke", openButton)
-openStroke.Color = Color3.fromRGB(0, 255, 200)
-openStroke.Thickness = 1
-
-local tableFrame = Instance.new("ScrollingFrame")
-tableFrame.Size = UDim2.new(0.9, 0, 0, 100)
-tableFrame.Position = UDim2.new(0.05, 0, 0, 110)
-tableFrame.BackgroundColor3 = Color3.fromRGB(15, 35, 65)
-tableFrame.BackgroundTransparency = 0
-tableFrame.BorderSizePixel = 0
-tableFrame.CanvasSize = UDim2.new(0, 0, 0, #items * 26)
-tableFrame.ScrollBarThickness = 4
-tableFrame.ScrollBarImageColor3 = Color3.fromRGB(255, 215, 0)
-tableFrame.Visible = false
-tableFrame.ZIndex = 12
-tableFrame.Parent = mainFrame
-
-local tableCorner = Instance.new("UICorner", tableFrame)
-tableCorner.CornerRadius = UDim.new(0, 8)
-
-local tableStroke = Instance.new("UIStroke", tableFrame)
-tableStroke.Color = Color3.fromRGB(0, 200, 255)
-tableStroke.Thickness = 1.5
-
-local tableList = Instance.new("UIListLayout")
-tableList.FillDirection = Enum.FillDirection.Vertical
-tableList.Padding = UDim.new(0, 4)
-tableList.SortOrder = Enum.SortOrder.LayoutOrder
-tableList.Parent = tableFrame
-
-local tablePadding = Instance.new("UIPadding")
-tablePadding.PaddingTop = UDim.new(0, 4)
-tablePadding.PaddingLeft = UDim.new(0, 4)
-tablePadding.PaddingRight = UDim.new(0, 4)
-tablePadding.Parent = tableFrame
-
-for index, item in ipairs(items) do
-    local itemButton = Instance.new("TextButton")
-    itemButton.Size = UDim2.new(1, -8, 0, 22)
-    itemButton.Position = UDim2.new(0, 4, 0, (index-1)*26)
-    itemButton.BackgroundColor3 = Color3.fromRGB(25, 45, 75)
-    itemButton.Text = "🎁 " .. item.custom .. " 🎁"
-    itemButton.TextColor3 = Color3.fromRGB(200, 230, 255)
-    itemButton.Font = Enum.Font.Gotham
-    itemButton.TextSize = 10
-    itemButton.TextTransparency = 0
-    itemButton.TextXAlignment = Enum.TextXAlignment.Left
-    itemButton.ZIndex = 13
-    itemButton.Parent = tableFrame
-    itemButton.LayoutOrder = index
+local function filterItems(searchText)
+    searchText = searchText:lower()
     
-    local buttonCorner = Instance.new("UICorner", itemButton)
-    buttonCorner.CornerRadius = UDim.new(0, 6)
-    
-    local buttonStroke = Instance.new("UIStroke", itemButton)
-    buttonStroke.Color = Color3.fromRGB(0, 150, 255)
-    buttonStroke.Thickness = 1
-
-    local textPadding = Instance.new("UIPadding", itemButton)
-    textPadding.PaddingLeft = UDim.new(0, 8)
-
-    itemButton.MouseEnter:Connect(function()
-        itemButton.BackgroundColor3 = Color3.fromRGB(35, 55, 85)
-    end)
-    
-    itemButton.MouseLeave:Connect(function()
-        itemButton.BackgroundColor3 = Color3.fromRGB(25, 45, 75)
-    end)
-
-    itemButton.MouseButton1Click:Connect(function()
-        inputBox.Text = item.custom
-        local grow = TweenService:Create(itemButton, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-            Size = UDim2.new(1, -8, 0, 24),
-            BackgroundColor3 = Color3.fromRGB(255, 100, 100)
-        })
-        grow:Play()
-        grow.Completed:Connect(function()
-            itemButton:TweenSize(UDim2.new(1, -8, 0, 22), "Out", "Quad", 0.1, true)
-            itemButton:TweenBackgroundColor3(Color3.fromRGB(25, 45, 75), "Out", "Quad", 0.1, true)
-        end)
-    end)
-end
-
-tableFrame.CanvasSize = UDim2.new(0, 0, 0, #items * 26)
-
-local closeButton = Instance.new("TextButton")
-closeButton.Text = "❌ CLOSE ❌"
-closeButton.Size = UDim2.new(0.35, 0, 0, 22)
-closeButton.Position = UDim2.new(0.6, 0, 0, 145)
-closeButton.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
-closeButton.TextColor3 = Color3.new(1, 1, 1)
-closeButton.Font = Enum.Font.GothamBlack
-closeButton.TextSize = 10
-closeButton.TextTransparency = 0
-closeButton.ZIndex = 11
-closeButton.Parent = mainFrame
-Instance.new("UICorner", closeButton).CornerRadius = UDim.new(0, 8)
-local closeStroke = Instance.new("UIStroke", closeButton)
-closeStroke.Color = Color3.fromRGB(255, 100, 100)
-closeStroke.Thickness = 1
-
-local progressFrame = Instance.new("Frame")
-progressFrame.Size = UDim2.new(0, 240, 0, 40)
-progressFrame.Position = UDim2.new(1, -250, 0, 100)
-progressFrame.BackgroundColor3 = Color3.fromRGB(15, 35, 65)
-progressFrame.BackgroundTransparency = 0
-progressFrame.ZIndex = 11
-progressFrame.Parent = screenGui
-Instance.new("UICorner", progressFrame).CornerRadius = UDim.new(0, 8)
-
-local progressLabel = Instance.new("TextLabel")
-progressLabel.Size = UDim2.new(1, 0, 0, 16)
-progressLabel.BackgroundTransparency = 1
-progressLabel.Text = "🎅 Progress: Waiting..."
-progressLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
-progressLabel.Font = Enum.Font.Gotham
-progressLabel.TextSize = 10
-progressLabel.TextTransparency = 0
-progressLabel.ZIndex = 12
-progressLabel.Parent = progressFrame
-
-local barBG = Instance.new("Frame")
-barBG.Size = UDim2.new(0.95, 0, 0, 8)
-barBG.Position = UDim2.new(0.025, 0, 0, 20)
-barBG.BackgroundColor3 = Color3.fromRGB(30, 50, 80)
-barBG.BackgroundTransparency = 0
-barBG.ZIndex = 12
-barBG.Parent = progressFrame
-Instance.new("UICorner", barBG).CornerRadius = UDim.new(1, 0)
-
-local barFill = Instance.new("Frame")
-barFill.Size = UDim2.new(0, 0, 1, 0)
-barFill.BackgroundColor3 = Color3.fromRGB(255, 50, 100)
-barFill.BackgroundTransparency = 0
-barFill.ZIndex = 12
-barFill.Parent = barBG
-Instance.new("UICorner", barFill).CornerRadius = UDim.new(1, 0)
-
-local function getOriginalName(customName)
-    for _, item in ipairs(items) do
-        if item.custom == customName then
-            return item.original
+    local visibleCount = 0
+    for _, data in ipairs(itemButtons) do
+        local itemName = data.item.custom:lower()
+        local isVisible = searchText == "" or itemName:find(searchText)
+        
+        data.button.Visible = isVisible
+        
+        if isVisible then
+            data.button.LayoutOrder = visibleCount
+            visibleCount = visibleCount + 1
         end
     end
-    return customName
+    
+    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, visibleCount * 35)
 end
 
-local isTableOpen = false
-openButton.MouseButton1Click:Connect(function()
-    isTableOpen = not isTableOpen
-    openButton.Text = isTableOpen and "🎄 CLOSE 🎄" or "🎄 OPEN 🎄"
-    tableFrame.Visible = isTableOpen
-
-    local mainFrameHeight = isTableOpen and 250 or 180
-    local closeButtonY = isTableOpen and 215 or 145
-    local progressFrameY = isTableOpen and 170 or 100
-
-    TweenService:Create(mainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0, 240, 0, mainFrameHeight)
-    }):Play()
-    TweenService:Create(closeButton, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-        Position = UDim2.new(0.6, 0, 0, closeButtonY)
-    }):Play()
-    TweenService:Create(progressFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-        Position = UDim2.new(1, -250, 0, progressFrameY)
-    }):Play()
-
-    local grow = TweenService:Create(openButton, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0.37, 0, 0, 24),
-        BackgroundColor3 = Color3.fromRGB(255, 100, 100)
-    })
-    grow:Play()
-    grow.Completed:Connect(function()
-        openButton:TweenSize(UDim2.new(0.35, 0, 0, 22), "Out", "Quad", 0.1, true)
-        openButton:TweenBackgroundColor3(isTableOpen and Color3.fromRGB(0, 150, 100) or Color3.fromRGB(0, 150, 100), "Out", "Quad", 0.1, true)
-    end)
+searchBox:GetPropertyChangedSignal("Text"):Connect(function()
+    filterItems(searchBox.Text)
 end)
 
-local dragToggle, dragStart, startPos
-local function updateInput(input)
-    local delta = input.Position - dragStart
-    local position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    TweenService:Create(mainFrame, TweenInfo.new(0.25), {Position = position}):Play()
+local function showProgress(itemName)
+    spawnButton.Visible = false
+    progressFrame.Visible = true
+    
+    TweenService:Create(progressFrame, TweenInfo.new(0.3), {BackgroundTransparency = 0}):Play()
+    TweenService:Create(progressLabel, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
+    TweenService:Create(progressBarBG, TweenInfo.new(0.3), {BackgroundTransparency = 0}):Play()
+    TweenService:Create(progressBarFill, TweenInfo.new(0.3), {BackgroundTransparency = 0}):Play()
+    TweenService:Create(progressPercent, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
+    
+    local totalTime = 5
+    local startTime = tick()
+    
+    while tick() - startTime < totalTime do
+        local elapsed = tick() - startTime
+        local progress = (elapsed / totalTime) * 100
+        
+        progressLabel.Text = "Spawning: " .. itemName
+        progressPercent.Text = string.format("%.0f%%", progress)
+        
+        TweenService:Create(progressBarFill, TweenInfo.new(0.1), {
+            Size = UDim2.new(progress / 100, 0, 1, 0)
+        }):Play()
+        
+        wait(0.05)
+    end
+    
+    progressLabel.Text = "✓ Done!"
+    progressPercent.Text = "100%"
+    TweenService:Create(progressBarFill, TweenInfo.new(0.2), {
+        Size = UDim2.new(1, 0, 1, 0),
+        BackgroundColor3 = COLORS.Success
+    }):Play()
+    
+    wait(1)
+    
+    TweenService:Create(progressFrame, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
+    TweenService:Create(progressLabel, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+    TweenService:Create(progressBarBG, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
+    TweenService:Create(progressBarFill, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
+    TweenService:Create(progressPercent, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+    
+    wait(0.3)
+    
+    progressFrame.Visible = false
+    spawnButton.Visible = true
+    progressBarFill.Size = UDim2.new(0, 0, 1, 0)
+    progressBarFill.BackgroundColor3 = COLORS.Primary
+    searchBox.Text = ""
 end
-
-mainFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragToggle = true
-        dragStart = input.Position
-        startPos = mainFrame.Position
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragToggle = false
-            end
-        end)
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-        if dragToggle then
-            updateInput(input)
-        end
-    end
-end)
 
 local function spawnItem(name)
     local DataBase, PlayerData = require(game:GetService("ReplicatedStorage").Database.Sync.Item), require(game:GetService("ReplicatedStorage").Modules.ProfileData)
     local PlayerWeapons = PlayerData.Weapons
 
-    if not PlayerWeapons.Owned[name] then
-        PlayerWeapons.Owned[name] = 1
+    local originalName = name
+    for _, item in ipairs(items) do
+        if item.custom == name then
+            originalName = item.original
+            break
+        end
+    end
+
+    if not PlayerWeapons.Owned[originalName] then
+        PlayerWeapons.Owned[originalName] = 1
     else
-        PlayerWeapons.Owned[name] += 1
+        PlayerWeapons.Owned[originalName] += 1
     end
 
     game:GetService("RunService"):BindToRenderStep("InventoryUpdate", 0, function()
@@ -413,79 +346,123 @@ local function spawnItem(name)
     game.Players.LocalPlayer.Character:BreakJoints()
 end
 
-local function showProgress(customName)
-    local originalName = getOriginalName(customName)
-    
-    progressFrame.Visible = true
-    progressLabel.Visible = true
-    barBG.Visible = true
-    barFill.Visible = true
-
-    local percent = 0
-    while percent < 100 do
-        percent += math.random(5, 15)
-        percent = math.clamp(percent, 0, 100)
-        progressLabel.Text = "🎅 Spawning: " .. customName .. " (" .. percent .. "%)"
-        barFill:TweenSize(UDim2.new(percent / 100, 0, 1, 0), "Out", "Quad", 0.1, true)
-        
-        if percent < 33 then
-            barFill.BackgroundColor3 = Color3.fromRGB(255, 50, 100)
-        elseif percent < 66 then
-            barFill.BackgroundColor3 = Color3.fromRGB(255, 150, 50)
-        else
-            barFill.BackgroundColor3 = Color3.fromRGB(50, 255, 100)
-        end
-        
-        task.wait(0.5)
-    end
-
-    progressLabel.Text = "🎁 Spawned: " .. customName
-    spawnItem(originalName)
-
-    task.delay(2, function()
-        progressFrame.Visible = false
-        progressLabel.Visible = false
-        barBG.Visible = false
-        barFill.Visible = false
-        barFill.Size = UDim2.new(0, 0, 1, 0)
-    end)
-end
-
 spawnButton.MouseButton1Click:Connect(function()
-    local itemName = inputBox.Text
-    if itemName == "" then return end
-
-    local grow = TweenService:Create(spawnButton, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0.47, 0, 0, 30),
-        BackgroundColor3 = Color3.fromRGB(255, 100, 150)
-    })
-    grow:Play()
-    grow.Completed:Connect(function()
-        spawnButton:TweenSize(UDim2.new(0.45, 0, 0, 28), "Out", "Quad", 0.1, true)
-        spawnButton:TweenBackgroundColor3(Color3.fromRGB(255, 50, 100), "Out", "Quad", 0.1, true)
-    end)
-
+    local itemName = searchBox.Text
+    if itemName == "" then 
+        for i = 1, 2 do
+            TweenService:Create(searchBox, TweenInfo.new(0.2), {
+                BackgroundColor3 = COLORS.Error
+            }):Play()
+            wait(0.2)
+            TweenService:Create(searchBox, TweenInfo.new(0.2), {
+                BackgroundColor3 = COLORS.Tertiary
+            }):Play()
+            wait(0.2)
+        end
+        return 
+    end
+    
+    TweenService:Create(spawnButton, TweenInfo.new(0.1), {
+        Size = UDim2.new(0.88, 0, 0, 38)
+    }):Play()
+    
+    wait(0.1)
+    
+    TweenService:Create(spawnButton, TweenInfo.new(0.1), {
+        Size = UDim2.new(0.9, 0, 0, 40)
+    }):Play()
+    
     showProgress(itemName)
-    inputBox.Text = ""
+    spawnItem(itemName)
 end)
 
 closeButton.MouseButton1Click:Connect(function()
+    TweenService:Create(mainFrame, TweenInfo.new(0.3), {
+        Size = UDim2.new(0, 0, 0, 410),
+        Position = mainFrame.Position
+    }):Play()
+    
+    TweenService:Create(mainFrame, TweenInfo.new(0.3), {
+        BackgroundTransparency = 1
+    }):Play()
+    
+    wait(0.3)
     screenGui:Destroy()
 end)
 
-spawn(function()
-    while true do
-        for i = 0, 1, 0.1 do
-            if topDecoration and topDecoration.Parent then
-                topDecoration.BackgroundTransparency = 0.3 + (i * 0.7)
-                wait(0.05)
-            end
-        end
-        for i = 0, 1, 0.1 do
-            if topDecoration and topDecoration.Parent then
-                topDecoration.BackgroundTransparency = 1 - (i * 0.7)
-                wait(0.05)
-            end
-        end
+spawnButton.MouseEnter:Connect(function()
+    TweenService:Create(spawnButton, TweenInfo.new(0.2), {
+        BackgroundColor3 = COLORS.PrimaryHover
+    }):Play()
+end)
+
+spawnButton.MouseLeave:Connect(function()
+    TweenService:Create(spawnButton, TweenInfo.new(0.2), {
+        BackgroundColor3 = COLORS.Primary
+    }):Play()
+end)
+
+closeButton.MouseEnter:Connect(function()
+    TweenService:Create(closeButton, TweenInfo.new(0.2), {
+        BackgroundColor3 = Color3.fromRGB(220, 80, 80)
+    }):Play()
+end)
+
+closeButton.MouseLeave:Connect(function()
+    TweenService:Create(closeButton, TweenInfo.new(0.2), {
+        BackgroundColor3 = COLORS.Error
+    }):Play()
+end)
+
+local dragging = false
+local dragStart = Vector2.new(0, 0)
+local startPosition = UDim2.new(0, 0, 0, 0)
+
+topBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPosition = mainFrame.Position
     end
 end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        mainFrame.Position = UDim2.new(
+            startPosition.X.Scale,
+            startPosition.X.Offset + delta.X,
+            startPosition.Y.Scale,
+            startPosition.Y.Offset + delta.Y
+        )
+    end
+end)
+
+topBar.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+
+filterItems("")
+
+wait(0.1)
+
+TweenService:Create(mainFrame, TweenInfo.new(0.5), {BackgroundTransparency = 0}):Play()
+TweenService:Create(stroke, TweenInfo.new(0.5), {Transparency = 0}):Play()
+
+local elements = {topBar, title, searchBox, scrollFrame, spawnButton, closeButton}
+
+for _, element in ipairs(elements) do
+    if element:IsA("Frame") then
+        TweenService:Create(element, TweenInfo.new(0.3), {BackgroundTransparency = 0}):Play()
+    elseif element:IsA("TextLabel") or element:IsA("TextButton") or element:IsA("TextBox") then
+        TweenService:Create(element, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
+    end
+end
+
+wait(0.2)
+for _, data in ipairs(itemButtons) do
+    TweenService:Create(data.button, TweenInfo.new(0.2), {BackgroundTransparency = 0}):Play()
+    TweenService:Create(data.button, TweenInfo.new(0.2), {TextTransparency = 0}):Play()
+end
